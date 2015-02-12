@@ -1,11 +1,3 @@
-## This function is used to toupper every first letter of a sentence
-## Taken from ?toupper
-.simpleCap <- function(x) {
-        s <- strsplit(x, " ")[[1]]
-        paste(toupper(substring(s, 1, 1)), substring(s, 2),
-              sep = "", collapse = " ")
-}
-
 ## This function's goal is to return the name of the Hospital which has the
 ## lowest mortality for a specified condition, and in a specific US state
 
@@ -57,4 +49,12 @@ best <- function(state, outcome) {
         ## Else return the unique solution
         ##
         return(top_outcome)
+}
+
+## This function is used to toupper every first letter of a sentence
+## Taken from ?toupper
+.simpleCap <- function(x) {
+        s <- strsplit(x, " ")[[1]]
+        paste(toupper(substring(s, 1, 1)), substring(s, 2),
+              sep = "", collapse = " ")
 }
