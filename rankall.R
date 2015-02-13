@@ -2,9 +2,6 @@
 ## given a specified outcome and ranking
 
 rankall <- function(outcome, num = "best") {
-        ## Read outcome data, convert "Not Available" into proper NAs for removal later
-        complete_outcome <- read.csv("outcome-of-care-measures.csv", na.strings = "Not Available")
-        
         ## Check that the outcome is valid
         ##
         if(outcome != "heart attack" & outcome != "heart failure"       ## Is the outcome valid?
@@ -12,14 +9,16 @@ rankall <- function(outcome, num = "best") {
                 stop("invalid outcome")
         }
         
+        ## Read outcome data, convert "Not Available" into proper NAs for removal later
+        complete_outcome <- read.csv("outcome-of-care-measures.csv", na.strings = "Not Available")
+        ## Create the data.frame to return (now empty)
+        name_by_state <- data.frame(Hospital.Name = character(0), State = character(0), stringsAsFactors = FALSE)
+                
         ## Generate corresponding outcome column name from the function's call parameter 
         ##
         outcome_column_name <- .simpleCap(outcome)         ## toupper every first letter of a sentence
         outcome_column_name <- gsub(" ",".", outcome_column_name)      ## Replacing spaces with dotes 
         outcome_column_name <- paste("Hospital.30.Day.Death..Mortality..Rates.from", outcome_column_name, sep = ".")
-        
-        ## Create the data.frame to return (now empty)
-        name_by_state <- data.frame(Hospital.Name = character(0), State = character(0), stringsAsFactors = FALSE)
         
         ## Only keep the wanted variables from the complete initial data
         wanted_data <- complete_outcome[,c("State", "Hospital.Name", outcome_column_name)]
@@ -41,6 +40,11 @@ rankall <- function(outcome, num = "best") {
                 else if (num == "worst") {   ## Return the last name 
                         temp_num <- nrow(ordered_data)
                 }
+                else if (num > nrow(ordered_data)) {         ## The data is unavailable 
+                        hospital_state <- c(NA,s_name)
+                        name_by_state <- rbind(name_by_state, hospital_state)
+                        next
+                }
                 else {
                         temp_num <- num
                 }
@@ -53,7 +57,7 @@ rankall <- function(outcome, num = "best") {
         ## Rename the columns as required
         names(name_by_state) <- c("hospital", "state")
         ## Order the data frame by state name
-        name_by_state <- name_by_state[order(name_by_state[,"state"], na.last = NA),]
+        name_by_state <- name_by_state[order(as.character(name_by_state[,"state"])),]
         ## Return a data frame with the hospital names and the (abbreviated) state name
         return (name_by_state)
 }
